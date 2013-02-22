@@ -251,6 +251,10 @@ app.controller('PageController', function ($scope, $http, bugzillaService) {
                 $scope.sites = _.sortBy($scope.sites, function(site) { return site.averageAge; }).reverse();
                 break;
             }
+            case "name": {
+                $scope.sites = _.sortBy($scope.sites, function(site) { return site.name; });
+                break;
+            }
         }
     };
 

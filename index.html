@@ -90,6 +90,9 @@
                         <li ng-class="{active: sortName == 'age'}">
                             <a href="#" ng-click="sort('age')">Sort by Age</a>
                         </li>
+                        <li ng-class="{active: sortName == 'name'}">
+                            <a href="#" ng-click="sort('name')">Sort by Name</a>
+                        </li>
                     </ul>
 
                     <table ng-show="!loading" class="table table-striped">
