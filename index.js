@@ -2,10 +2,12 @@
 var app = angular.module('blockers', []);
 
 app.run(function($rootScope, sessionService, bugzillaService) {
+    $rootScope.ready = false;
     $rootScope.loggedIn = false;
 
     $rootScope.$on("BugzillaLoginSuccess", function(event, args) {
         sessionService.setCredentials(args.credentials);
+        $rootScope.ready = true;
         $rootScope.loggedIn = true;
     });
 
@@ -18,7 +20,7 @@ app.run(function($rootScope, sessionService, bugzillaService) {
     if (credentials) {
         bugzillaService.login(credentials.username, credentials.password);
     } else {
-        //bugzillaService.logout();
+        $rootScope.ready = true;
     }
 });
 

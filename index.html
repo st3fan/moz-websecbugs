@@ -20,7 +20,7 @@
 
             <!-- Sign in form -->
 
-            <div id="signin-container" ng-controller="SigninController" ng-show="!loggedIn">
+            <div id="signin-container" ng-controller="SigninController" ng-show="ready && !loggedIn">
 
                 <form class="form-signin" id="signin-form">
                     <h2 class="form-signin-heading">Please sign in</h2>
@@ -39,7 +39,7 @@
 
             <!-- Main Page -->
 
-            <div ng-controller="PageController" ng-show="loggedIn">
+            <div ng-controller="PageController" ng-show="ready && loggedIn">
 
                 <div class="navbar navbar-inverse navbar-fixed-top">
                     <div class="navbar-inner">
