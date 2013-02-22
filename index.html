@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="blockers">
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Provided -->
+        <script src="js/jquery-1.9.1.js"></script>
+        <script src="js/angular.js"></script>
+        <script src="js/underscore.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <link rel="stylesheet" href="css/bootstrap.css">
+        <!-- App -->
+        <script src="index.js"></script>
+        <link rel="stylesheet" href="index.css">
+    </head>
+
+    <body ng-controller="ApplicationController">
+
+        <div class="container">
+
+            <!-- Sign in form -->
+
+            <div id="signin-container" ng-controller="SigninController" ng-show="!loggedIn">
+
+                <form class="form-signin" id="signin-form">
+                    <h2 class="form-signin-heading">Please sign in</h2>
+                    <input type="text" class="input-block-level" placeholder="Bugzilla Username" ng-model="username">
+                    <input type="password" class="input-block-level" placeholder="Bugzilla Password" ng-model="password">
+                    <label class="checkbox">
+                        <input type="checkbox" value="1" ng-model="rememberMe">Remember my username
+                    </label>
+                    <p class="text-error" ng-show="error">{{error}}</p>
+                    <button class="btn btn-large btn-primary" id="signin-button" ng-click="signin()">Sign in</button>
+                    <P></P>
+                    <p><b>Note:</b> This application runs completely inside the browser. Your Bugzilla credentials are only sent directly to the Bugzilla API over SSL.</p>
+                </form>
+
+            </div>
+
+            <!-- Main Page -->
+
+            <div ng-controller="PageController" ng-show="loggedIn">
+
+                <div class="navbar navbar-inverse navbar-fixed-top">
+                    <div class="navbar-inner">
+                        <div class="container">
+                            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="brand" href="#">Web Security Bugs</a>
+                            <div class="nav-collapse collapse">
+                                <p class="navbar-text pull-right">
+                                    {{username}} - <a href="#" class="navbar-link" ng-click="logout()">Logout</a>
+                                </p>
+                                <ul class="nav">
+                                    <li class=""><a href="#">Top Ten</a></li>
+                                    <li class="active"><a href="#">Sites</a></li>
+                                </ul>
+                            </div><!--/.nav-collapse -->
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="loading">
+                    <h3>Loading bugs .. this can take a minute</h3>
+                </div>
+
+                <div ng-show="!loading" class="container">
+
+                    <ul class="nav nav-pills pull-left">
+                        <li ng-class="{active: filterName == 'all'}">
+                            <a href="#" ng-click="filter('all')">All Sites</a>
+                        </li>
+                        <li ng-class="{active: filterName == 'moco'}">
+                            <a href="#" ng-click="filter('moco')">MoCo Sites</a>
+                        </li>
+                        <li ng-class="{active: filterName == 'mofo'}">
+                            <a href="#" ng-click="filter('mofo')">MoFo Sites</a>
+                        </li>
+                    </ul>
+
+                    <ul class="nav nav-pills pull-right">
+                        <li ng-class="{active: sortName == 'count'}">
+                            <a href="#" ng-click="sort('count')">Sort by Count</a>
+                        </li>
+                        <li ng-class="{active: sortName == 'age'}">
+                            <a href="#" ng-click="sort('age')">Sort by Age</a>
+                        </li>
+                    </ul>
+
+                    <table ng-show="!loading" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <td>#</td>
+                            <th>Site</th>
+                            <th>Unconfirmed</th>
+                            <th>New</th>
+                            <th>Avg Age</th>
+                        </tr>
+                        </thead>
+                        <tr ng-repeat="site in sites">
+                            <td>{{$index+1}}</td>
+                            <td><a href="{{site.bugzillaAllOpenBugsLink}}" target="_blank">{{site.name}}</a></td>
+                            <td>{{site.unconfirmed}}</td>
+                            <td>{{site.new}}</td>
+                            <td><span class="label label-{{site.averageAgeLabel}}">{{site.averageAge}} days</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </body>
+
+</html>
