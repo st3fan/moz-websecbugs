@@ -41,6 +41,7 @@
 
             <div ng-controller="PageController" ng-show="ready && loggedIn">
 
+
                 <div class="navbar navbar-inverse navbar-fixed-top">
                     <div class="navbar-inner">
                         <div class="container">
@@ -81,6 +82,9 @@
                         <li ng-class="{active: filterName == 'mofo'}">
                             <a href="#" ng-click="filter('mofo')">MoFo Sites</a>
                         </li>
+                        <li ng-class="{active: filterName == 'thirdparty'}">
+                            <a href="#" ng-click="filter('thirdparty')">Third-Party Sites</a>
+                        </li>
                     </ul>
 
                     <ul class="nav nav-pills pull-right">
@@ -94,7 +98,26 @@
                             <a href="#" ng-click="sort('name')">Sort by Name</a>
                         </li>
                     </ul>
+                </div>
 
+                <div ng-show="!loading" class="container">
+
+                    <h3>Showing {{sites.length}} sites with {{sitesBugCount}} unresolved web security bugs :-(</h3>
+
+                  <div ng-repeat="site in sites">
+                    <h4 style="text-overflow: hidden; text-transform:uppercase;" class="site-title-big">#{{$index+1}} {{site.name}} <span class="label label-{{site.averageAgeLabel}} pull-right">{{site.averageAge}} days</span>  </h4>
+                        <ul style="list-style: none;">
+                            <li ng-repeat="bug in site.bugs">
+                                <span style="width: 30px; margin-right: 6px; text-align: center;" class="label label-{{bug.shortStatusColor}}">{{bug.shortStatus}}</span>
+                                <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}" target="_blank">
+                                    <span class="bug-{{bug.status}}">{{bug.id}} {{bug.summary}}</span>
+                                </a>
+                            </li>
+                        </ul>
+                  </div>
+
+
+<!--
                     <table ng-show="!loading" class="table table-striped">
                         <thead>
                         <tr>
@@ -113,6 +136,7 @@
                             <td><span class="label label-{{site.averageAgeLabel}}">{{site.averageAge}} days</span></td>
                         </tr>
                     </table>
+-->
                 </div>
             </div>
 

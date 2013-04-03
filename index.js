@@ -1,4 +1,3 @@
-
 var app = angular.module('blockers', []);
 
 app.run(function($rootScope, sessionService, bugzillaService) {
@@ -200,6 +199,7 @@ app.controller('PageController', function ($scope, $http, bugzillaService) {
 
     $scope.bugs = [];
     $scope.sites = {};
+    $scope.sitesBugCount = 0;
     $scope.projectReviewBugs = [];
     $scope.blockingBugs = {};
 
@@ -214,9 +214,17 @@ app.controller('PageController', function ($scope, $http, bugzillaService) {
 
     const MOCO_SITES = ["www.mozilla.com", "plugins.mozilla.org", "forums.mozilla.org", "addons.mozilla.org", "developer.mozilla.org", "vreplay.mozilla.com"];
     const MOFO_SITES = ["www.drumbeat.org", "donate.mozilla.org", "thimble.webmaker.org", "2011.mozillafestival.org", "popcorn.webmadecontent.org", "popcorn.webmaker.org"];
+    const THIRD_PARTY_SITES = ["vreplay.mozilla.org"];
 
     $scope.filterName = "all";
     $scope.sortName = "count";
+
+    var countTotalBugs = function() {
+        return _.chain($scope.sites)
+            .map(function (site) {return site.new + site.unconfirmed;})
+            .reduce(function (memo, num) {return memo + num;}, 0)
+            .value();
+    };
 
     $scope.filter = function(what) {
         $scope.filterName = what;
@@ -234,8 +242,12 @@ app.controller('PageController', function ($scope, $http, bugzillaService) {
                 $scope.sites = _.filter($scope.allSites, function(site) {return  MOFO_SITES.indexOf(site.name) != -1;});
                 break;
             }
+            case "thirdparty": {
+                $scope.sites = _.filter($scope.allSites, function(site) {return THIRD_PARTY_SITES.indexOf(site.name) != -1;});
+            }
         }
 
+        $scope.sitesBugCount = countTotalBugs();
         $scope.sort($scope.sortName);
     };
 
@@ -263,7 +275,7 @@ app.controller('PageController', function ($scope, $http, bugzillaService) {
         // First we get the project review bugs
 
         var options = {
-            include_fields:"id,creation_time,summary,status,whiteboard",
+            include_fields:"id,creation_time,summary,status,resolution,whiteboard",
             advanced: [["status_whiteboard", "substring", "[site:"], ["bug_group", "substring", "websites-security"]]
         };
 
@@ -280,20 +292,41 @@ app.controller('PageController', function ($scope, $http, bugzillaService) {
                 $scope.bugs = data.bugs;
                 $scope.loading = false;
 
+                var shortStatus = function(bug) {
+                    switch (bug.status) {
+                    case "UNCONFIRMED":
+                        return {status: "UNC", color: "info"};
+                    case "NEW":
+                        return {status: "NEW", color: "info"};
+                    case "RESOLVED":
+                        return {status: bug.resolution.substr(0,3), color: "default"};
+                    case "VERIFIED":
+                        return {status: bug.resolution.substr(0,3), color: "default"};
+                    case "REOPENED":
+                        return {status: "NEW", color: "info"};
+                    case "ASSIGNED":
+                        return {status: "ASS", color: "info"};
+                    }
+                    return {status: "UNK", color: "default"};
+                };
+
                 // Loop over all bugs and group sites
 
                 var sites = {};
                 _.each($scope.bugs, function(bug) {
-                    bugzillaService.cleanupBug(bug);
-                    _.each(parseSites(bug['whiteboard']), function (site) {
-                        if (!sites[site]) {
-                            sites[site] = {name:site,unconfirmed:0,resolved:0,new:0,verified:0,averageAge:0};
-                        }
-                        sites[site][bug.status.toLowerCase()]++;
-                        if (bug.status === 'UNCONFIRMED' || bug.status === 'NEW') {
+                    if (bug.status === 'UNCONFIRMED' || bug.status === 'NEW' || bug.status === "REOPENED" || bug.status == "ASSIGNED") {
+                        bugzillaService.cleanupBug(bug);
+                        bug.shortStatus = shortStatus(bug).status;
+                        bug.shortStatusColor = shortStatus(bug).color;
+                        _.each(parseSites(bug['whiteboard']), function (site) {
+                            if (!sites[site]) {
+                                sites[site] = {name:site,unconfirmed:0,resolved:0,new:0,verified:0,averageAge:0,bugs:[]};
+                            }
+                            sites[site].bugs.push(bug);
+                            sites[site][bug.status.toLowerCase()]++;
                             sites[site].averageAge += bug.age;
-                        }
-                    });
+                        });
+                    }
                 });
 
                 _.each(sites, function(site) {
