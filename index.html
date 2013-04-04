@@ -107,7 +107,7 @@
                   <div ng-repeat="site in sites">
                     <h4 style="text-overflow: hidden; text-transform:uppercase;" class="site-title-big">#{{$index+1}} {{site.name}} <span class="label label-{{site.averageAgeLabel}} pull-right">{{site.averageAge}} days</span>  </h4>
                         <ul style="list-style: none;">
-                            <li ng-repeat="bug in site.bugs">
+                            <li ng-repeat="bug in site.bugs" style="margin-bottom: 2px;">
                                 <span style="width: 30px; margin-right: 6px; text-align: center;" class="label label-{{bug.shortStatusColor}}">{{bug.shortStatus}}</span>
                                 <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{bug.id}}" target="_blank">
                                     <span class="bug-{{bug.status}}">{{bug.id}} {{bug.summary}}</span>
